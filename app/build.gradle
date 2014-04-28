@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'http://download.crashlytics.com/maven' }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+//        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+    }
+}
+
+project.group = "su.geocaching.android.ui"
+
+repositories {
+    mavenCentral()
+    maven { url 'http://download.crashlytics.com/maven' }
+}
+
+apply plugin: 'android'
+//apply plugin: 'crashlytics'
+
+
+def basicVersion = '1.8.0 dev'
+def customVersionCode = 1800
+
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.3"
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 19
+        versionCode customVersionCode
+        versionName basicVersion
+    }
+    buildTypes {
+        release {
+            runProguard false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+//    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.android.support:support-v4:19.1.0'
+//    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.google.android.gms:play-services:4.3.23'
+//    compile 'com.crashlytics.android:crashlytics:1.+'
+
+    // Ui dependencies
+    compile project(':ui:slidingmenu')
+    compile project(':ui:pageindicator')
+    compile project(':ui:photoview')
+
+    // Jars
+    compile files('libs/flurryAnalytics_3.4.0.jar')
+}
