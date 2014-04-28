@@ -5,3 +5,4 @@ local.properties
 .idea
 app/src/main/obj
 com_crashlytics_export_strings.xml
+*.keystore
