@@ -1,14 +1,13 @@
 package com.jeremyfeinstein.slidingmenu.lib.app;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import android.support.v7.app.ActionBarActivity;
 
-public class SlidingActivity extends Activity implements SlidingActivityBase {
+public class SlidingActivity extends ActionBarActivity implements SlidingActivityBase {
 
 	private SlidingActivityHelper mHelper;
 
