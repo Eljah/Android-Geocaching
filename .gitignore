@@ -6,5 +6,6 @@ local.properties
 app/src/main/obj
 com_crashlytics_export_strings.xml
 *.keystore
+android-sign/keys.properties
 /app/src/debug/res/values/keys.xml
 /app/src/release/res/values/keys.xml

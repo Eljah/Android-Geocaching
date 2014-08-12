@@ -1,16 +1,132 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath "com.android.tools.build:gradle:$androidPluginVersion"
     }
 }
 
-allprojects {
-    repositories {
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
+
+ext {
+    signProps = new Properties()
+    rootProject.file('android-sign/keys.properties').withInputStream { stream -> signProps.load(stream) }
+
+    appVersion = new Version(project: this, subprojects: subprojects, minor: minorVersion as int, major: majorVersion as int)
+    versionCode = VersionUtils.makeVersionCode(appVersion.toString(), minSdkVersionValue as int)
+}
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+subprojects.each { subproject ->
+    subproject.repositories {
         mavenCentral()
+    }
+
+    subproject.configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        resolutionStrategy.cacheDynamicVersionsFor 10 * 60, 'seconds'
+    }
+    evaluationDependsOn(subproject.path)
+}
+
+//---------------release app---------------------------
+
+task increaseMajorVersion << {
+    appVersion.increaseMajor()
+}
+
+task increaseMinorVersion << {
+    appVersion.increaseMinor()
+}
+
+task commitVersion << {
+//    svn.commit "Update application version to ${appVersion}", ['gradle.properties']
+}
+
+
+task release(dependsOn: [increaseMajorVersion, commitVersion]) {
+    description 'Release a new version of application and increase version'
+
+    doLast {
+        println "${appVersion} released"
+    }
+}
+
+task releasePatch(dependsOn: [increaseMinorVersion, commitVersion]) {
+    description 'Release a patch for application and increase version'
+
+    doLast {
+        println "${appVersion} released"
+    }
+}
+
+//-------------------Utils----------------
+
+class Version {
+    def project
+    def subprojects
+    int major
+    int minor
+    boolean release
+
+    String toString() { minor != 0 ? "${major}.${minor}" : "${major}" }
+
+    Version increaseMajor() { major++; minor = 0; save(); this }
+
+    Version increaseMinor() { minor++; save(); this }
+
+    void save() {
+        subprojects.findAll { project -> project.hasProperty('android') && project.android.hasProperty('applicationVariants') && project.isActiveRelease == 'true' }.each { project ->
+            project.android.defaultConfig.versionName = this.toString()
+            project.android.defaultConfig.versionCode = VersionUtils.makeVersionCode(toString(), project.android.defaultConfig.minSdkVersion.mApiLevel as int)
+
+            println "${project.name} versionName = ${project.android.defaultConfig.versionName}, versionCode = ${project.android.defaultConfig.versionCode}"
+        }
+        project.ant.propertyfile(file: 'gradle.properties') {
+            entry(key: "majorVersion", value: major)
+            entry(key: "minorVersion", value: minor)
+        }
+    }
+}
+
+class VersionUtils {
+
+    private static final String VERSION_PATTERN_RAW = "(\\d+\\.?)(\\d+\\.?)?(\\d*)"
+    private static final Pattern VERSION_PATTERN = Pattern.compile(VERSION_PATTERN_RAW)
+    private static final String VERSION_CODE_TEMPLATE = "%d%03d%02d%02d"
+
+    public static int makeVersionCode(String versionName, int minSupportedSdk) {
+        Matcher versions = VERSION_PATTERN.matcher(versionName);
+        if (!versions.find()) throw new GradleException("versionName is does not match pattern " + VERSION_PATTERN_RAW)
+        try {
+            String code = String.format(VERSION_CODE_TEMPLATE,
+                    minSupportedSdk,
+                    getVersionPart(versions, 0),
+                    getVersionPart(versions, 1),
+                    getVersionPart(versions, 2))
+            return Integer.parseInt(code)
+        } catch (NumberFormatException e) {
+            throw new GradleException("versionName is does not match pattern " + VERSION_PATTERN_RAW, e)
+        }
+    }
+
+    private static int getVersionPart(Matcher versions, int index) {
+        if (index < versions.groupCount()) {
+            String group = versions.group(index + 1)
+            if (group == null || group.isEmpty()) return 0
+            return Integer.parseInt(group.endsWith(".") ? group.substring(0, group.length() - 1) : group)
+        } else {
+            return 0
+        }
     }
 }

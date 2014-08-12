@@ -1,25 +1,21 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
-    }
+apply plugin: 'com.android.library'
+
+repositories {
+    mavenCentral()
 }
-apply plugin: 'android-library'
 
 dependencies {
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion rootProject.buildToolsVersion as String
+    compileSdkVersion rootProject.compileSdkVersion as int
 
     defaultConfig {
-        minSdkVersion 7
-        targetSdkVersion 19
+        minSdkVersion minSdkVersionValue as int
+        targetSdkVersion rootProject.targetSdkVersion as int
     }
 
     sourceSets {

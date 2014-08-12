@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath "com.android.tools.build:gradle:$androidPluginVersion"
 //        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
@@ -14,35 +14,37 @@ project.group = "su.geocaching.android.ui"
 
 repositories {
     mavenCentral()
-//    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'http://download.crashlytics.com/maven' }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 //apply plugin: 'crashlytics'
 
 
-def basicVersion = '1.8.0 dev'
-def customVersionCode = 1800
-
-
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.0.3"
-
-    lintOptions {
-        checkReleaseBuilds false
-    }
+    buildToolsVersion rootProject.buildToolsVersion as String
+    compileSdkVersion rootProject.compileSdkVersion as int
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 19
-        versionCode customVersionCode
-        versionName basicVersion
+        minSdkVersion minSdkVersionValue as int
+        targetSdkVersion rootProject.targetSdkVersion as int
+        versionName appVersion.toString()
+        versionCode rootProject.versionCode as int
     }
+
+    signingConfigs {
+        geocaching {
+            storeFile rootProject.file(signProps.signingFile)
+            storePassword signProps.signingStorePassword
+            keyAlias signProps.signingKeyAlias
+            keyPassword signProps.signingKeyPassword
+        }
+    }
+
     buildTypes {
         release {
-            runProguard false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            runProguard true
+            proguardFiles 'proguard-rules.txt'
         }
     }
 }
@@ -50,7 +52,7 @@ android {
 dependencies {
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.google.android.gms:play-services:4.3.23'
+    compile 'com.google.android.gms:play-services:4.+'
 
     compile 'com.squareup.okhttp:okhttp:1.5.4'
     compile 'com.squareup.picasso:picasso:2.2.0'
@@ -62,5 +64,5 @@ dependencies {
     compile project(':ui:photoview')
 
     // Jars
-    compile files('libs/flurryAnalytics_3.4.0.jar')
+    compile files('libs/flurryAnalytics-4.1.0.jar')
 }
