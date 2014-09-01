@@ -1,9 +1,12 @@
 package su.geocaching.android.ui.selectmap;
 
 import android.content.Context;
+import android.graphics.Point;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
@@ -20,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectMapWrapper, ClusterManager.OnClusterItemClickListener<GeoCache> {
+public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectMapWrapper, ClusterManager.OnClusterItemClickListener<GeoCache>, ClusterManager.OnClusterClickListener<GeoCache> {
     private ClusterManager<GeoCache> mClusterManager;
     private Set<Integer> cache = new HashSet<Integer>();
 
@@ -30,6 +33,7 @@ public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectM
         mClusterManager.setRenderer(new GeoCacheRenderer());
 
         mClusterManager.setOnClusterItemClickListener(this);
+        mClusterManager.setOnClusterClickListener(this);
         mMap.setOnMarkerClickListener(mClusterManager);
         mMap.setOnInfoWindowClickListener(mClusterManager);
     }
@@ -54,6 +58,7 @@ public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectM
 
         @Override
         protected void onBeforeClusterRendered(Cluster<GeoCache> cluster, MarkerOptions markerOptions) {
+//            super.onBeforeClusterRendered(cluster, markerOptions);
             markerOptions.icon(BitmapDescriptorFactory.fromResource(Controller.getInstance().getResourceManager().getMarkerResId(GeoCacheType.GROUP, null)));
         }
 
@@ -80,6 +85,14 @@ public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectM
     @Override
     public boolean onClusterItemClick(GeoCache item) {
         NavigationManager.startInfoActivity(context, item);
+        return true;
+    }
+
+    @Override
+    public boolean onClusterClick(Cluster<GeoCache> cluster) {
+        LatLng latLng = cluster.getPosition();
+        Point point = googleMap.getProjection().toScreenLocation(latLng);
+        googleMap.animateCamera(CameraUpdateFactory.zoomBy(1, point));
         return true;
     }
 }
