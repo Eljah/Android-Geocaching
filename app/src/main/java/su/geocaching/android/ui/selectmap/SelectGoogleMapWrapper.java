@@ -80,6 +80,7 @@ public class SelectGoogleMapWrapper extends GoogleMapWrapper implements ISelectM
             }
         }
         mClusterManager.addItems(geoCacheList);
+        mClusterManager.cluster();
     }
 
     @Override
