@@ -7,11 +7,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.model.GeoCache;
 import su.geocaching.android.model.GeoCacheStatus;
 import su.geocaching.android.model.GeoCacheType;
-import su.geocaching.android.model.GeoPoint;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -139,8 +139,8 @@ public class DbManager extends SQLiteOpenHelper {
         values.put(COLUMN_STATUS, geoCacheForAdd.getStatus().ordinal());
         values.put(COLUMN_TYPE, geoCacheForAdd.getType().ordinal());
         //TODO Update database to store double lat and long
-        values.put(COLUMN_LAT, geoCacheForAdd.getGeoPoint().getLatitudeE6());
-        values.put(COLUMN_LON, geoCacheForAdd.getGeoPoint().getLongitudeE6());
+        values.put(COLUMN_LAT, geoCacheForAdd.getGeoPoint().latitude);
+        values.put(COLUMN_LON, geoCacheForAdd.getGeoPoint().longitude);
         values.put(COLUMN_WEB_TEXT, webText);
         if (photos != null) {
             values.put(COLUMN_PHOTOS, TextUtils.join(PHOTO_URL_DEVIDER, photos));
@@ -162,8 +162,8 @@ public class DbManager extends SQLiteOpenHelper {
         values.put(CHECKPOINT_ID, checkpoint.getId());
         values.put(COLUMN_NAME, checkpoint.getName());
         //TODO Update database to store double lat and long
-        values.put(COLUMN_LAT, checkpoint.getGeoPoint().getLatitudeE6());
-        values.put(COLUMN_LON, checkpoint.getGeoPoint().getLongitudeE6());
+        values.put(COLUMN_LAT, checkpoint.getGeoPoint().latitude);
+        values.put(COLUMN_LON, checkpoint.getGeoPoint().longitude);
         values.put(COLUMN_STATUS, checkpoint.getStatus().ordinal());
 
         db.insert(DATABASE_CHECKPOINT_NAME_TABLE, null, values);
@@ -186,7 +186,7 @@ public class DbManager extends SQLiteOpenHelper {
 
         cache.setName(cur.getString(cur.getColumnIndex(COLUMN_NAME)));
         //TODO: Update database to store double lat and long
-        cache.setGeoPoint(GeoPoint.fromE6(cur.getInt(cur.getColumnIndex(COLUMN_LAT)), cur.getInt(cur.getColumnIndex(COLUMN_LON))));
+        cache.setGeoPoint(new LatLng(cur.getInt(cur.getColumnIndex(COLUMN_LAT)), cur.getInt(cur.getColumnIndex(COLUMN_LON))));
         cache.setStatus(GeoCacheStatus.values()[cur.getInt(cur.getColumnIndex(COLUMN_STATUS))]);
         cache.setType(GeoCacheType.values()[cur.getInt(cur.getColumnIndex(COLUMN_TYPE))]);
 
@@ -209,7 +209,7 @@ public class DbManager extends SQLiteOpenHelper {
             geocache.setId(cur.getInt(cur.getColumnIndex(COLUMN_ID)));
             geocache.setName(cur.getString(cur.getColumnIndex(COLUMN_NAME)));
             geocache.setStatus(GeoCacheStatus.values()[cur.getInt(cur.getColumnIndex(COLUMN_STATUS))]);
-            geocache.setGeoPoint(GeoPoint.fromE6(cur.getInt(cur.getColumnIndex(COLUMN_LAT)), cur.getInt(cur.getColumnIndex(COLUMN_LON))));
+            geocache.setGeoPoint(new LatLng(cur.getInt(cur.getColumnIndex(COLUMN_LAT)), cur.getInt(cur.getColumnIndex(COLUMN_LON))));
             geocache.setType(GeoCacheType.values()[cur.getInt(cur.getColumnIndex(COLUMN_TYPE))]);
             exitCollection.add(geocache);
 
@@ -237,7 +237,7 @@ public class DbManager extends SQLiteOpenHelper {
             GeoCache geocache = new GeoCache();
             geocache.setId(cursor.getInt(cursor.getColumnIndex(CHECKPOINT_ID)));
             geocache.setName(cursor.getString(cursor.getColumnIndex(COLUMN_NAME)));
-            geocache.setGeoPoint(GeoPoint.fromE6(cursor.getInt(cursor.getColumnIndex(COLUMN_LAT)), cursor.getInt(cursor.getColumnIndex(COLUMN_LON))));
+            geocache.setGeoPoint(new LatLng(cursor.getInt(cursor.getColumnIndex(COLUMN_LAT)), cursor.getInt(cursor.getColumnIndex(COLUMN_LON))));
             geocache.setType(GeoCacheType.CHECKPOINT);
             geocache.setStatus(GeoCacheStatus.values()[cursor.getInt(cursor.getColumnIndex(COLUMN_STATUS))]);
             exitCollection.add(geocache);

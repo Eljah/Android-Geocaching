@@ -2,8 +2,8 @@ package su.geocaching.android.controller.utils;
 
 import android.content.res.Resources;
 import android.location.Location;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.Controller;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.ui.R;
 
 /**
@@ -46,36 +46,36 @@ public class CoordinateHelper {
      * @param l1
      *         location
      * @param l2
-     *         GeoPoint
+     *         LatLng
      * @return distance between locations in meters
      */
-    public static float getDistanceBetween(Location l1, GeoPoint l2) {
+    public static float getDistanceBetween(Location l1, LatLng l2) {
         float[] results = new float[1];
-        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude(), results);
+        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.latitude, l2.longitude, results);
         return results[0];
     }
 
     /**
      * @param l1
-     *         GeoPoint
+     *         LatLng
      * @param l2
      *         location
      * @return distance between locations in meters
      */
-    public static float getDistanceBetween(GeoPoint l1, Location l2) {
+    public static float getDistanceBetween(LatLng l1, Location l2) {
         return getDistanceBetween(l2, l1);
     }
 
     /**
      * @param l1
-     *         first GeoPoint
+     *         first LatLng
      * @param l2
-     *         second GeoPoint
+     *         second LatLng
      * @return distance between locations in meters
      */
-    public static float getDistanceBetween(GeoPoint l1, GeoPoint l2) {
+    public static float getDistanceBetween(LatLng l1, LatLng l2) {
         float[] results = new float[1];
-        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude(), results);
+        Location.distanceBetween(l1.latitude, l1.longitude, l2.latitude, l2.longitude, results);
         return results[0];
     }
 
@@ -86,15 +86,15 @@ public class CoordinateHelper {
      *         location to
      * @return bearing of direction from l1 to l2 in degrees
      */
-    public static float getBearingBetween(Location l1, GeoPoint l2) {
+    public static float getBearingBetween(Location l1, LatLng l2) {
         float[] results = new float[2];
-        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude(), results);
+        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.latitude, l2.longitude, results);
         return results[1];
     }
 
-    public static float getBearingBetween(GeoPoint l1, GeoPoint l2) {
+    public static float getBearingBetween(LatLng l1, LatLng l2) {
         float[] results = new float[2];
-        Location.distanceBetween(l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude(), results);
+        Location.distanceBetween(l1.latitude, l1.longitude, l2.latitude, l2.longitude, results);
         return results[1];
     }
 
@@ -135,10 +135,10 @@ public class CoordinateHelper {
     /**
      * @param location
      *         - Location object
-     * @return location coverted to GeoPoint object
+     * @return location coverted to LatLng object
      */
-    public static GeoPoint locationToGeoPoint(Location location) {
-        return new GeoPoint(location.getLatitude(), location.getLongitude());
+    public static LatLng locationToGeoPoint(Location location) {
+        return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     /**
@@ -148,9 +148,9 @@ public class CoordinateHelper {
      *         - coordinates
      * @return formating string (for example: "60° 12,123' с.ш. | 30° 32,321'" в.д.)
      */
-    public static String coordinateToString(GeoPoint location) {
-        Sexagesimal latitude = new Sexagesimal(location.getLatitude()).roundTo(3);
-        Sexagesimal longitude = new Sexagesimal(location.getLongitude()).roundTo(3);
+    public static String coordinateToString(LatLng location) {
+        Sexagesimal latitude = new Sexagesimal(location.latitude).roundTo(3);
+        Sexagesimal longitude = new Sexagesimal(location.longitude).roundTo(3);
 
         Resources res = Controller.getInstance().getResourceManager().getResources();
         String format;
@@ -182,9 +182,9 @@ public class CoordinateHelper {
      *         distance to the goal point
      * @return goal geopoint
      */
-    public static GeoPoint distanceBearingToGeoPoint(GeoPoint currentGeoPoint, float bearing, float distance) {
-        double latitude = Math.toRadians(currentGeoPoint.getLatitude());
-        double longitude = Math.toRadians(currentGeoPoint.getLongitude());
+    public static LatLng distanceBearingToGeoPoint(LatLng currentGeoPoint, float bearing, float distance) {
+        double latitude = Math.toRadians(currentGeoPoint.latitude);
+        double longitude = Math.toRadians(currentGeoPoint.longitude);
         double radianBearing = Math.toRadians(bearing);
 
         double distanceDivRadius = distance / EARTH_RADIUS;
@@ -196,7 +196,7 @@ public class CoordinateHelper {
 
         goalLatitude = Math.toDegrees(goalLatitude);
         goalLongitude = Math.toDegrees(goalLongitude);
-        return new GeoPoint(goalLatitude, goalLongitude);
+        return new LatLng(goalLatitude, goalLongitude);
     }
 
     public static String distanceH(double distance, int threshold)

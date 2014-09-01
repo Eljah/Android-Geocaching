@@ -8,7 +8,7 @@ import su.geocaching.android.model.GeoCache;
 
 public class GoogleMarkerOptions {
     public static MarkerOptions fromGeocache(GeoCache geoCache) {
-        LatLng latLng = GoogleMapWrapper.getCacheLocation(geoCache);
+        LatLng latLng = geoCache.getGeoPoint();
         int iconId = Controller.getInstance().getResourceManager().getMarkerResId(geoCache.getType(), geoCache.getStatus());
         return
                 new MarkerOptions()

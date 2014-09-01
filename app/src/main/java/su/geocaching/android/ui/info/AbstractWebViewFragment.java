@@ -18,10 +18,10 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.apimanager.GeocachingSuApiManager;
 import su.geocaching.android.controller.managers.NavigationManager;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.ui.R;
 
 public abstract class AbstractWebViewFragment extends SherlockFragment implements IInfoFragment {
@@ -125,7 +125,7 @@ public abstract class AbstractWebViewFragment extends SherlockFragment implement
                     String[] coordinates = url.split("[^0-9]+");
                     int lat = Integer.parseInt(coordinates[1]);
                     int lng = Integer.parseInt(coordinates[2]);
-                    ((AdvancedInfoActivity) getActivity()).openCheckpointDialog(GeoPoint.fromE6(lat, lng));
+                    ((AdvancedInfoActivity) getActivity()).openCheckpointDialog(new LatLng(lat, lng));
                     return true;
                 }
 

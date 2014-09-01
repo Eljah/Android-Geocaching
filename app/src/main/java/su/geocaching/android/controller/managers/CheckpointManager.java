@@ -1,11 +1,11 @@
 package su.geocaching.android.controller.managers;
 
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.utils.Sexagesimal;
 import su.geocaching.android.model.GeoCache;
 import su.geocaching.android.model.GeoCacheStatus;
 import su.geocaching.android.model.GeoCacheType;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.ui.R;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class CheckpointManager {
         return cacheId;
     }
 
-    public GeoCache addCheckpoint(int cacheId, String name, GeoPoint geoPoint) {
+    public GeoCache addCheckpoint(int cacheId, String name, LatLng geoPoint) {
         deactivateCheckpoints();
         checkpointNumber++;
         GeoCache gc = new GeoCache();

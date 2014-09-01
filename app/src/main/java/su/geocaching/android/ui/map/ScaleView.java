@@ -7,9 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.apimanager.GeoRect;
 import su.geocaching.android.controller.utils.CoordinateHelper;
-import su.geocaching.android.model.GeoPoint;
 
 public class ScaleView extends View {
     private Paint linePaint;
@@ -113,7 +113,7 @@ public class ScaleView extends View {
     public void updateMapViewPort(GeoRect viewPort) {
         int width = getWidth();
         if (width == 0) return;
-        GeoPoint bottomLeft = new GeoPoint(viewPort.br.getLatitude(), viewPort.tl.getLongitude());
+        LatLng bottomLeft = new LatLng(viewPort.br.latitude, viewPort.tl.longitude);
         double newScale = CoordinateHelper.getDistanceBetween(viewPort.br, bottomLeft) / width;
         if (Math.abs(mpp - newScale) > 0.0001) {
             mpp = newScale;

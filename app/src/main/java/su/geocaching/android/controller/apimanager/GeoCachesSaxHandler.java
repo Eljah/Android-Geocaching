@@ -1,5 +1,6 @@
 package su.geocaching.android.controller.apimanager;
 
+import com.google.android.gms.maps.model.LatLng;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -7,7 +8,6 @@ import su.geocaching.android.controller.managers.LogManager;
 import su.geocaching.android.model.GeoCache;
 import su.geocaching.android.model.GeoCacheStatus;
 import su.geocaching.android.model.GeoCacheType;
-import su.geocaching.android.model.GeoPoint;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -98,7 +98,7 @@ class GeoCachesSaxHandler extends DefaultHandler {
             int status = parseCacheParameter(text);
             setGeoCacheStatus(status);
         } else if (localName.equalsIgnoreCase(C)) {
-            geoCache.setGeoPoint(new GeoPoint(latitude, longitude));
+            geoCache.setGeoPoint(new LatLng(latitude, longitude));
             geoCacheList.add(geoCache);
         }
 

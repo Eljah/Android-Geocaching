@@ -1,6 +1,7 @@
-package su.geocaching.android.controller;
+package su.geocaching.android;
 
 import android.app.Application;
+import su.geocaching.android.controller.Controller;
 
 /**
  * @author Grigory Kalabin. grigory.kalabin@gmail.com

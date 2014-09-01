@@ -2,6 +2,8 @@ package su.geocaching.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
 
 /**
  * Class for storing information about the cache
@@ -9,25 +11,25 @@ import android.os.Parcelable;
  * @author Nikita Bumakov
  * @since October 2010 GeoCache - central concept of geocaching game.
  */
-public class GeoCache implements Parcelable {
+public class GeoCache implements Parcelable, ClusterItem {
 
     private int id; // Unique identifier of GeoCache(from geocaching.su)
-    private GeoPoint geoPoint;
+    private LatLng geoPoint;
     private String name;
     private GeoCacheType type;
     private GeoCacheStatus status;
 
     public GeoCache() {
-        geoPoint = new GeoPoint(0, 0);
+        geoPoint = new LatLng(0, 0);
         type = GeoCacheType.TRADITIONAL;
         status = GeoCacheStatus.VALID;
     }
 
-    public GeoPoint getGeoPoint() {
+    public LatLng getGeoPoint() {
         return geoPoint;
     }
 
-    public void setGeoPoint(GeoPoint geoPoint) {
+    public void setGeoPoint(LatLng geoPoint) {
         this.geoPoint = geoPoint;
     }
 
@@ -83,8 +85,8 @@ public class GeoCache implements Parcelable {
         // ! Important order of writing to parcel
         arg0.writeInt(id);
         arg0.writeString(name);
-        arg0.writeDouble(geoPoint.getLatitude());
-        arg0.writeDouble(geoPoint.getLongitude());
+        arg0.writeDouble(geoPoint.latitude);
+        arg0.writeDouble(geoPoint.longitude);
         arg0.writeInt(type.ordinal());
         arg0.writeInt(status.ordinal());
     }
@@ -103,7 +105,7 @@ public class GeoCache implements Parcelable {
             GeoCache res = new GeoCache();
             res.id = in.readInt();
             res.name = in.readString();
-            res.geoPoint = new GeoPoint(in.readDouble(), in.readDouble());
+            res.geoPoint = new LatLng(in.readDouble(), in.readDouble());
             res.type = GeoCacheType.values()[in.readInt()];
             res.status = GeoCacheStatus.values()[in.readInt()];
             return res;
@@ -134,5 +136,10 @@ public class GeoCache implements Parcelable {
     @Override
     public int hashCode() {
         return id;
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return geoPoint;
     }
 }

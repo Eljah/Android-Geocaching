@@ -1,5 +1,6 @@
 package su.geocaching.android.ui.searchmap;
 
+import android.content.Context;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Handler;
@@ -35,8 +36,8 @@ public class SearchGoogleMapWrapper extends GoogleMapWrapper implements ISearchM
     private boolean autoRotationEnabled = false;
     private Handler uiThreadHandler = new Handler();
 
-    public SearchGoogleMapWrapper(GoogleMap map) {
-        super(map);
+    public SearchGoogleMapWrapper(Context context, GoogleMap map) {
+        super(context, map);
         preciseColor = Controller.getInstance().getResourceManager().getColor(R.color.user_location_arrow_color_precise);
         notPreciseColor = Controller.getInstance().getResourceManager().getColor(R.color.user_location_arrow_color_not_precise);
         geocacheOverlay = new GoogleGeocacheOverlay(map);
@@ -92,7 +93,7 @@ public class SearchGoogleMapWrapper extends GoogleMapWrapper implements ISearchM
 
         int color = isPrecise ? preciseColor : notPreciseColor;
         LatLng userPosition = getUserLocation(location);
-        LatLng cachePosition = getCacheLocation(Controller.getInstance().getCurrentSearchPoint());
+        LatLng cachePosition = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
         if (cacheDirection == null) {
             PolylineOptions options = new PolylineOptions();
             options.add(userPosition);
@@ -109,7 +110,7 @@ public class SearchGoogleMapWrapper extends GoogleMapWrapper implements ISearchM
     @Override
     public void updateCacheDirection() {
         if (cacheDirection != null) {
-            LatLng cachePosition = getCacheLocation(Controller.getInstance().getCurrentSearchPoint());
+            LatLng cachePosition = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
             LatLng userPosition = getUserLocation(currentUserLocation);
             cacheDirection.setPoints(Arrays.asList(userPosition, cachePosition));
         }
@@ -127,7 +128,7 @@ public class SearchGoogleMapWrapper extends GoogleMapWrapper implements ISearchM
         }
         // geocache and checkpoint markers
         for (GeoCache geocache : geocaches) {
-            boundsBuilder.include(getCacheLocation(geocache));
+            boundsBuilder.include(geocache.getGeoPoint());
         }
 
         // TODO: take into account size of marker and it's anchor

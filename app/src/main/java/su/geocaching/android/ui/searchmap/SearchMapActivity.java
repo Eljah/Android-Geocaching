@@ -205,7 +205,7 @@ public class SearchMapActivity extends SherlockFragmentActivity
     public void updateLocation(Location userLocation) {
         LogManager.d(TAG, "update location");
         hideProgressBarCircle();
-        final GeoPoint cachePosition = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
+        final LatLng cachePosition = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
         final float distance = CoordinateHelper.getDistanceBetween(cachePosition, userLocation);
         if (distance < CLOSE_DISTANCE_TO_GC_VALUE) {
             Controller.getInstance().getLocationManager().updateFrequency(GpsUpdateFrequency.MAXIMAL);
@@ -339,11 +339,11 @@ public class SearchMapActivity extends SherlockFragmentActivity
     private void onDrivingDirectionsSelected() {
         final Location location = Controller.getInstance().getLocationManager().getLastKnownLocation();
         if (location != null) {
-            final GeoPoint destination = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
+            final LatLng destination = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
             final double sourceLat = location.getLatitude();
             final double sourceLng = location.getLongitude();
-            final double destinationLat = destination.getLatitude();
-            final double destinationLng = destination.getLongitude();
+            final double destinationLat = destination.latitude;
+            final double destinationLng = destination.longitude;
             NavigationManager.startExternalDrivingDirrections(this, sourceLat, sourceLng, destinationLat, destinationLng);
         } else {
             Toast.makeText(getBaseContext(), getString(R.string.status_null_last_location), Toast.LENGTH_LONG).show();
@@ -351,9 +351,9 @@ public class SearchMapActivity extends SherlockFragmentActivity
     }
 
     private void showExternalMap() {
-        final GeoPoint destination = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
-        final double latitude = destination.getLatitude();
-        final double longitude = destination.getLongitude();
+        final LatLng destination = Controller.getInstance().getCurrentSearchPoint().getGeoPoint();
+        final double latitude = destination.latitude;
+        final double longitude = destination.longitude;
         NavigationManager.startExternalMap(this, latitude, longitude, (int) mapWrapper.getMapState().getZoom());
     }
 
@@ -632,13 +632,13 @@ public class SearchMapActivity extends SherlockFragmentActivity
      * This should only be called once and when we are sure that {@link #googleMap} is not null.
      */
     private void setUpMap() {
-        mapWrapper = new SearchGoogleMapWrapper(googleMap);
+        mapWrapper = new SearchGoogleMapWrapper(this, googleMap);
 
         mapWrapper.setupMyLocationLayer();
         mapWrapper.setLocationMarkerTapListener(new LocationMarkerTapListener() {
             @Override
-            public void OnMarkerTapped() {
-                Controller.getInstance().Vibrate();
+            public void onMarkerTapped() {
+                Controller.getInstance().vibrate();
                 NavigationManager.startCompassActivity(SearchMapActivity.this, geoCache);
             }
         });
@@ -646,7 +646,7 @@ public class SearchMapActivity extends SherlockFragmentActivity
         mapWrapper.setGeocacheTapListener(new GeocacheMarkerTapListener() {
             @Override
             public void OnMarkerTapped(final GeoCache geocache) {
-                Controller.getInstance().Vibrate();
+                Controller.getInstance().vibrate();
                 if (geocache.getType() == GeoCacheType.CHECKPOINT) {
                     NavigationManager.startCheckpointDialog(SearchMapActivity.this, geocache);
                 } else {
@@ -662,19 +662,19 @@ public class SearchMapActivity extends SherlockFragmentActivity
 
         mapWrapper.setMapLongClickListener(new MapLongClickListener() {
             @Override
-            public void onMapLongClick(LatLng latLng) {
+            public void onMapLongClick(com.google.android.gms.maps.model.LatLng latLng) {
                 GeoCache checkpoint = new GeoCache();
                 checkpoint.setType(GeoCacheType.CHECKPOINT);
                 checkpoint.setName(geoCache.getName());
                 checkpoint.setId(geoCache.getId());
-                checkpoint.setGeoPoint(new GeoPoint(latLng.latitude, latLng.longitude));
+                checkpoint.setGeoPoint(new LatLng(latLng.latitude, latLng.longitude));
                 NavigationManager.startCreateCheckpointActivity(SearchMapActivity.this, checkpoint);
             }
         });
 
         mapWrapper.setViewPortChangeListener(new ViewPortChangeListener() {
             @Override
-            public void OnViewPortChanged(GeoRect viewPort) {
+            public void onViewPortChanged(GeoRect viewPort) {
                 scaleView.updateMapViewPort(viewPort);
                 checkAutoRotationAvailable();
             }

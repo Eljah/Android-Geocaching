@@ -1,51 +1,52 @@
 package su.geocaching.android.controller.apimanager;
 
-import su.geocaching.android.model.GeoPoint;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public class GeoRect {
 
-    public GeoPoint tl;
-    public GeoPoint br;
+    public LatLng tl;
+    public LatLng br;
 
-    public GeoRect(GeoPoint tl, GeoPoint br) {
-        assert (tl.getLatitude() < br.getLatitude() || tl.getLongitude() == br.getLongitude());
+    public GeoRect(LatLng tl, LatLng br) {
+        assert (tl.latitude < br.latitude || tl.longitude == br.longitude);
         this.tl = tl;
         this.br = br;
     }
 
     public boolean contains(GeoRect rect) {
-        if (rect.tl.getLatitude() > tl.getLatitude()) return false;
-        if (rect.br.getLatitude() < br.getLatitude()) return false;
+        if (rect.tl.latitude > tl.latitude) return false;
+        if (rect.br.latitude < br.latitude) return false;
 
-        if (br.getLongitude() > tl.getLongitude()) {
-            if (rect.br.getLongitude() > rect.tl.getLongitude()) {
-                if (rect.tl.getLongitude() < tl.getLongitude() || rect.br.getLongitude() > br.getLongitude())
+        if (br.longitude > tl.longitude) {
+            if (rect.br.longitude > rect.tl.longitude) {
+                if (rect.tl.longitude < tl.longitude || rect.br.longitude > br.longitude)
                     return false;
             } else {
                 return false;
             }
         } else {
-            if (rect.br.getLongitude() > rect.tl.getLongitude()) {
-                if (rect.tl.getLongitude() > tl.getLatitude()) return true;
-                if (rect.br.getLongitude() < br.getLongitude()) return true;
+            if (rect.br.longitude > rect.tl.longitude) {
+                if (rect.tl.longitude > tl.latitude) return true;
+                if (rect.br.longitude < br.longitude) return true;
             } else {
-                if ((rect.tl.getLongitude() < tl.getLongitude() && rect.tl.getLongitude() > br.getLongitude())
-                        || ((rect.br.getLongitude() < tl.getLongitude() && rect.br.getLongitude() > br.getLongitude())))
+                if ((rect.tl.longitude < tl.longitude && rect.tl.longitude > br.longitude)
+                        || ((rect.br.longitude < tl.longitude && rect.br.longitude > br.longitude)))
                     return false;
             }
         }
         return true;
     }
 
-    public boolean contains(GeoPoint point) {
-        if (point.getLatitude() > tl.getLatitude()) return false;
-        if (point.getLatitude() < br.getLatitude()) return false;
+    public boolean contains(LatLng point) {
+        if (point.latitude > tl.latitude) return false;
+        if (point.latitude < br.latitude) return false;
 
-        if (br.getLongitude() > tl.getLongitude()) {
-            if (point.getLongitude() < tl.getLongitude() || point.getLongitude() > br.getLongitude()) return false;
+        if (br.longitude > tl.longitude) {
+            if (point.longitude < tl.longitude || point.longitude > br.longitude) return false;
         } else {
             // rightLong maybe smaller than leftLong. 4ex 160:-160
-            if (point.getLongitude() < tl.getLongitude() && point.getLongitude() > br.getLongitude()) return false;
+            if (point.longitude < tl.longitude && point.longitude > br.longitude) return false;
         }
 
         return true;

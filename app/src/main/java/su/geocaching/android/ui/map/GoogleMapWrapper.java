@@ -1,13 +1,12 @@
 package su.geocaching.android.ui.map;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.apimanager.GeoRect;
-import su.geocaching.android.model.GeoCache;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.model.MapInfo;
 import su.geocaching.android.ui.map.providers.*;
 
@@ -15,22 +14,27 @@ import static com.google.android.gms.maps.GoogleMap.*;
 
 public class GoogleMapWrapper implements IMapWrapper {
 
+    protected Context context;
     protected GoogleMap googleMap;
 
     protected Location currentUserLocation;
-    protected LocationSource.OnLocationChangedListener locationChangedListener;
+    protected TileOverlay customTileOverlay;
+    protected MapType currentMapType;
 
+    protected LocationSource.OnLocationChangedListener locationChangedListener;
     private static final Bitmap clickableBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ALPHA_8);
     private Marker userPositionClickArea; // hack to make user position clickable
-    private Marker userPositionClickArea2; // hack to make user position clickable
 
+    private Marker userPositionClickArea2; // hack to make user position clickable
     private LocationMarkerTapListener locationMarkerTapListener;
 
-    public GoogleMapWrapper(GoogleMap map) {
+    public GoogleMapWrapper(Context context, GoogleMap map) {
+        this.context = context;
         googleMap = map;
-        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
 
         //clickableBitmap.eraseColor(Color.RED);
 
@@ -50,7 +54,7 @@ public class GoogleMapWrapper implements IMapWrapper {
         if (marker.getId().equals(userPositionClickArea.getId()) ||
                 marker.getId().equals(userPositionClickArea2.getId())) {
             if (locationMarkerTapListener != null)
-                locationMarkerTapListener.OnMarkerTapped();
+                locationMarkerTapListener.onMarkerTapped();
             return true;
         }
 
@@ -63,13 +67,13 @@ public class GoogleMapWrapper implements IMapWrapper {
 
     @Override
     public void animateToLocation(Location location) {
-        LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng center = new LatLng(location.getLongitude(), location.getLongitude());
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(center));
     }
 
     @Override
-    public void animateToGeoPoint(GeoPoint geoPoint) {
-        LatLng center = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+    public void animateToGeoPoint(LatLng geoPoint) {
+        LatLng center = new LatLng(geoPoint.latitude, geoPoint.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(center));
     }
 
@@ -93,25 +97,29 @@ public class GoogleMapWrapper implements IMapWrapper {
 
     @Override
     public void setViewPortChangeListener(final ViewPortChangeListener listener) {
-        googleMap.setOnCameraChangeListener(
-                new OnCameraChangeListener() {
+        googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
-                        // If custom tile overlay is enabled, use rounded zoom to avoid
-                        // tiles blurring
-                        if (customTileOverlay != null) {
-                            int roundZoom = Math.round(cameraPosition.zoom);
-                            if (Math.abs(cameraPosition.zoom - roundZoom) > 0.01) {
-                                CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(roundZoom);
-                                googleMap.animateCamera(cameraUpdate);
-                                return;
-                            }
-                        }
-                        GeoRect viewPort = getViewPortGeoRect();
-                        listener.OnViewPortChanged(viewPort);
+                        GoogleMapWrapper.this.onCameraChange(cameraPosition, listener);
+
                     }
                 }
         );
+    }
+
+    protected void onCameraChange(CameraPosition cameraPosition, ViewPortChangeListener listener) {
+        // If custom tile overlay is enabled, use rounded zoom to avoid
+        // tiles blurring
+        if (customTileOverlay != null) {
+            int roundZoom = Math.round(cameraPosition.zoom);
+            if (Math.abs(cameraPosition.zoom - roundZoom) > 0.01) {
+                CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(roundZoom);
+                googleMap.animateCamera(cameraUpdate);
+                return;
+            }
+        }
+        GeoRect viewPort = getViewPortGeoRect();
+        listener.onViewPortChanged(viewPort);
     }
 
     @Override
@@ -121,8 +129,8 @@ public class GoogleMapWrapper implements IMapWrapper {
 
     private GeoRect getViewPortGeoRect() {
         LatLngBounds viewPortBounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-        GeoPoint tl = new GeoPoint(viewPortBounds.northeast.latitude, viewPortBounds.southwest.longitude);
-        GeoPoint br = new GeoPoint(viewPortBounds.southwest.latitude, viewPortBounds.northeast.longitude);
+        LatLng tl = new LatLng(viewPortBounds.northeast.latitude, viewPortBounds.southwest.longitude);
+        LatLng br = new LatLng(viewPortBounds.southwest.latitude, viewPortBounds.northeast.longitude);
         return new GeoRect(tl, br);
     }
 
@@ -159,9 +167,6 @@ public class GoogleMapWrapper implements IMapWrapper {
     public void setLocationMarkerTapListener(LocationMarkerTapListener listener) {
         locationMarkerTapListener = listener;
     }
-
-    private TileOverlay customTileOverlay;
-    private MapType currentMapType;
 
     @Override
     public void updateMapLayer() {
@@ -206,6 +211,8 @@ public class GoogleMapWrapper implements IMapWrapper {
                 return new MapQuestOsmUrlTileProvider();
             case MarshrutyRu:
                 return new MarshrutyRuUrlTileProvider();
+            case MapBox:
+                return new MapBoxStandardProvider();
         }
         return null;
     }
@@ -225,10 +232,6 @@ public class GoogleMapWrapper implements IMapWrapper {
                 locationChangedListener = null;
             }
         });
-    }
-
-    protected static LatLng getCacheLocation(GeoCache geoCache) {
-        return new LatLng(geoCache.getGeoPoint().getLatitude(), geoCache.getGeoPoint().getLongitude());
     }
 
     protected static LatLng getUserLocation(Location location) {

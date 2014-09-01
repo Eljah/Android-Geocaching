@@ -5,6 +5,7 @@ public enum MapType {
     GoogleSatellite,
     GoogleHybrid,
     GoogleTerrain,
+    MapBox,
     OsmMapnik,
     OsmCylcle,
     MarshrutyRu, OsmMapQuest

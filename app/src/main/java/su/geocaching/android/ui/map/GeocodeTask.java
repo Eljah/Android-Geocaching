@@ -5,8 +5,8 @@ import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.view.Gravity;
 import android.widget.Toast;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.managers.LogManager;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.ui.R;
 import su.geocaching.android.ui.selectmap.SelectMapActivity;
 
@@ -49,6 +49,6 @@ public class GeocodeTask extends AsyncTask<String, Void, List<Address>> {
             return;
         }
         Address firstAddress = result.get(0);
-        activity.animateTo(new GeoPoint(firstAddress.getLatitude(), firstAddress.getLongitude()));
+        activity.animateTo(new LatLng(firstAddress.getLatitude(), firstAddress.getLongitude()));
     }
 }

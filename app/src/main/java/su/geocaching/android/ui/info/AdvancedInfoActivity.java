@@ -26,11 +26,11 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.android.gms.maps.model.LatLng;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.managers.NavigationManager;
 import su.geocaching.android.model.GeoCache;
 import su.geocaching.android.model.GeoCacheType;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.ui.R;
 import su.geocaching.android.ui.info.controls.TextSizeAdjustableTextView;
 import su.geocaching.android.ui.info.controls.TextSizeAdjustedEvent;
@@ -303,7 +303,7 @@ public class AdvancedInfoActivity extends SherlockFragmentActivity {
         }
     }
 
-    public void openCheckpointDialog(GeoPoint geoPoint) {
+    public void openCheckpointDialog(LatLng geoPoint) {
 
         if (!infoViewModel.isCacheStored()) {
             Toast.makeText(this, R.string.ask_add_cache_in_db, Toast.LENGTH_LONG).show();

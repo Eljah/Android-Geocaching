@@ -9,21 +9,21 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingActivity;
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.apimanager.GeoRect;
 import su.geocaching.android.controller.managers.*;
 import su.geocaching.android.model.GeoCache;
-import su.geocaching.android.model.GeoPoint;
 import su.geocaching.android.model.MapInfo;
 import su.geocaching.android.ui.R;
-import su.geocaching.android.ui.map.GeocacheMarkerTapListener;
 import su.geocaching.android.ui.map.GeocodeTask;
 import su.geocaching.android.ui.map.ScaleView;
 import su.geocaching.android.ui.map.ViewPortChangeListener;
@@ -31,7 +31,7 @@ import su.geocaching.android.ui.preferences.MapPreferenceActivity;
 
 import java.util.List;
 
-public class SelectMapActivity extends SherlockFragmentActivity implements IConnectionAware, ILocationAware {
+public class SelectMapActivity extends SlidingActivity implements IConnectionAware, ILocationAware {
     private static final String TAG = SelectMapActivity.class.getCanonicalName();
     private static final String SELECT_ACTIVITY_FOLDER = "/SelectActivity";
     private static final int ENABLE_CONNECTION_DIALOG_ID = 0;
@@ -48,7 +48,7 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
     private TextView connectionInfoTextView;
     private TextView downloadingInfoTextView;
     private TextView groupingInfoTextView;
-    private MenuItem  searchMenuItem;
+    private MenuItem searchMenuItem;
     private ScaleView scaleView;
 
     private Toast tooManyCachesToast;
@@ -57,14 +57,25 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
     private SelectMapViewModel selectMapViewModel;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LogManager.d(TAG, "onCreate");
+
+        SlidingMenu sm = getSlidingMenu();
+        sm.setShadowWidthRes(R.dimen.shadow_width);
+        sm.setShadowDrawable(R.drawable.shadow);
+        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        sm.setFadeDegree(0.35f);
+        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setBehindContentView(R.layout.map_sliding_menu);
+
 
         //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.select_map_activity);
-        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
 
         scaleView = (ScaleView)findViewById(R.id.scaleView);
 
@@ -103,7 +114,7 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
 
         // update mapView setting in case they were changed in preferences
         mapWrapper.updateMapLayer();
-        mapWrapper.setZoomControlsEnabled(Controller.getInstance().getPreferencesManager().isZoomButtonsVisible());
+//        mapWrapper.setZoomControlsEnabled(Controller.getInstance().getPreferencesManager().isZoomButtonsVisible());
         // add subscriber to connection manager
         connectionManager.addSubscriber(this);
         // ask to enable if disabled
@@ -178,7 +189,7 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
         return searchView;
     }
 
-    public void animateTo(GeoPoint point) {
+    public void animateTo(LatLng point) {
         mapWrapper.animateToGeoPoint(point);
     }
 
@@ -221,35 +232,6 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
     public synchronized void updateGeoCacheMarkers(List<GeoCache> geoCachesList) {
         LogManager.d(TAG, "geoCachesList updated; size: %d", geoCachesList.size());
         mapWrapper.updateGeoCacheMarkers(geoCachesList);
-        hideTooMayCachesToast();
-    }
-
-    public void tooManyOverlayItems() {
-        showTooMayCachesToast();
-        mapWrapper.clearGeocacheMarkers();
-    }
-
-    private void showTooMayCachesToast() {
-        if (tooManyCachesToast == null) {
-            tooManyCachesToast = Toast.makeText(this, R.string.too_many_caches, Toast.LENGTH_LONG);
-        }
-        tooManyCachesToast.show();
-    }
-
-    private void hideTooMayCachesToast() {
-        if (tooManyCachesToast != null) {
-            tooManyCachesToast.cancel();
-        }
-    }
-
-    public void hideGroupingInfo() {
-        groupingInfoTextView.setVisibility(View.INVISIBLE);
-        updateProgressCircleVisibility();
-    }
-
-    public void showGroupingInfo() {
-        groupingInfoTextView.setVisibility(View.VISIBLE);
-        updateProgressCircleVisibility();
     }
 
     public void hideDownloadingInfo() {
@@ -349,29 +331,18 @@ public class SelectMapActivity extends SherlockFragmentActivity implements IConn
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mapWrapper = new SelectGoogleMapWrapper(mMap);
+        mapWrapper = new SelectGoogleMapWrapper(this, mMap);
 
         mapWrapper.setViewPortChangeListener(new ViewPortChangeListener() {
             @Override
-            public void OnViewPortChanged(GeoRect viewPort) {
+            public void onViewPortChanged(GeoRect viewPort) {
                 View mapView = mapFragment.getView();
                 if (mapView != null) {
                     scaleView.updateMapViewPort(viewPort);
-                    selectMapViewModel.beginUpdateGeocacheOverlay(viewPort, mapWrapper.getProjection(), mapView.getWidth(), mapView.getHeight());
+                    selectMapViewModel.beginUpdateGeocacheOverlay(viewPort);
                 } else {
                     LogManager.e(TAG, "mapView is Null");
                 }
-            }
-        });
-
-        mapWrapper.setGeocacheTapListener(new GeocacheMarkerTapListener() {
-            @Override
-            public void OnMarkerTapped(final GeoCache geocache) {
-                NavigationManager.startInfoActivity(SelectMapActivity.this, geocache);
-            }
-
-            @Override
-            public void OnMarkerLongTapped(final GeoCache geocache) {
             }
         });
 

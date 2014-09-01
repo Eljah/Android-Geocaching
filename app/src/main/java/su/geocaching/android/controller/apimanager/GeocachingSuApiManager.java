@@ -64,10 +64,10 @@ public class GeocachingSuApiManager implements IApiManager {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
-            double maxLatitude = rect.tl.getLatitude();
-            double minLatitude = rect.br.getLatitude();
-            double maxLongitude = rect.br.getLongitude();
-            double minLongitude = rect.tl.getLongitude();
+            double maxLatitude = rect.tl.latitude;
+            double minLatitude = rect.br.latitude;
+            double maxLongitude = rect.br.longitude;
+            double minLongitude = rect.tl.longitude;
             URL url = getCacheListUrl(maxLatitude, minLatitude, maxLongitude, minLongitude);
 
             inputStreamReader = getInputSteamReader(url);

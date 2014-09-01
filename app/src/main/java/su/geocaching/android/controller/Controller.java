@@ -282,7 +282,7 @@ public class Controller {
      * @param applicationContext
      *         global application context of application
      */
-    protected void setApplicationContext(Context applicationContext) {
+    public void setApplicationContext(Context applicationContext) {
         this.applicationContext = applicationContext;
         if (SHOW_MEMORY_TOAST) {
             MemoryManager memoryManager = new MemoryManager(applicationContext);
@@ -348,11 +348,11 @@ public class Controller {
         return infoViewModel;
     }
 
-    public void Vibrate() {
+    public void vibrate() {
         // Get instance of Vibrator from current Context
         Vibrator vibrator = (Vibrator) applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null) {
-            // Vibrate for 25f milliseconds
+            // vibrate for 25f milliseconds
             vibrator.vibrate(25);
         }
     }
