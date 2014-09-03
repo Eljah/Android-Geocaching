@@ -4,11 +4,13 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.crashlytics.android.Crashlytics;
 
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.managers.NavigationManager;
@@ -30,6 +32,7 @@ public class DashboardActivity extends SherlockActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         setContentView(R.layout.dashboard_activity);
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayUseLogoEnabled(true);

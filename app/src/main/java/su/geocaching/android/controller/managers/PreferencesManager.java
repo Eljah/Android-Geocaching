@@ -7,14 +7,19 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
+
+import java.util.EnumSet;
+
 import su.geocaching.android.controller.Controller;
 import su.geocaching.android.controller.GpsUpdateFrequency;
 import su.geocaching.android.controller.ListMultiSelectPreference;
-import su.geocaching.android.model.*;
+import su.geocaching.android.model.GeoCache;
+import su.geocaching.android.model.GeoCacheStatus;
+import su.geocaching.android.model.GeoCacheType;
+import su.geocaching.android.model.MapInfo;
+import su.geocaching.android.model.SearchMapInfo;
 import su.geocaching.android.ui.R;
 import su.geocaching.android.ui.map.MapType;
-
-import java.util.EnumSet;
 
 /**
  * Manager which can get access to application preferences
@@ -53,8 +58,7 @@ public class PreferencesManager {
     /**
      * Save last searched geocache id in preferences
      *
-     * @param lastSearchedGeoCache
-     *         last searched geoCache
+     * @param lastSearchedGeoCache last searched geoCache
      */
     public synchronized void setLastSearchedGeoCache(GeoCache lastSearchedGeoCache) {
         if (lastSearchedGeoCache != null) {
@@ -66,8 +70,7 @@ public class PreferencesManager {
     }
 
     /**
-     * @param info
-     *         with data to save
+     * @param info with data to save
      */
     public synchronized void setLastSelectMapInfo(MapInfo info) {
         if (info != null) {
@@ -124,8 +127,7 @@ public class PreferencesManager {
     }
 
     /**
-     * @param info
-     *         with data to save
+     * @param info with data to save
      */
     public synchronized void setLastSearchMapInfo(SearchMapInfo info) {
         if (info != null) {
@@ -245,6 +247,7 @@ public class PreferencesManager {
         if (mapType.equals("OsmMapnik")) return MapType.OsmMapnik;
         if (mapType.equals("OsmCycle")) return MapType.OsmCylcle;
         if (mapType.equals("OsmMapQuest")) return MapType.OsmMapQuest;
+        if (mapType.equals("MapBox")) return MapType.MapBox;
 
         if (mapType.equals("MarshrutyRuTopoMap")) return MapType.MarshrutyRu;
 

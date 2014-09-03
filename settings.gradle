@@ -1,1 +1,1 @@
-include ':app', ':ui:pageindicator', ':ui:photoview', ":ui:slidingmenu"
+include ':app', ':ui:photoview', ":ui:slidingmenu"

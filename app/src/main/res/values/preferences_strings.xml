@@ -1,4 +1,5 @@
 <resources>
+    <string name="st_lang">ru</string>
     <string name="preferences_activity_name">Настройки</string>
 
     <!-- Dashboard -->
@@ -90,11 +91,13 @@
         <item>Mapnik</item>
         <item>OpenCycleMap</item>
         <item>MapQuest</item>
+        <item>MapBox</item>
     </string-array>
     <string-array name="osm_map_type_values">
         <item>OsmMapnik</item>
         <item>OsmCycle</item>
         <item>OsmMapQuest</item>
+        <item>MapBox</item>
     </string-array>
 
     <string-array name="marshruty_map_type_entries">
@@ -221,7 +224,7 @@
     <string name="download_photos_always_key">downloadPhotosAlwaysKey</string>
     <string name="download_photos_always_summary">Загружать фотографии тайника без подтверждения</string>
     <bool name="download_photos_always_value">false</bool>
-	
+
     <!--
     <string name="save_notebook_always_title">Сохранять блокнот</string>
     <string name="save_notebook_always_key">downloadNoteBookAlways</string>
